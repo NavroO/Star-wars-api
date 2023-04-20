@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { SearchResult, Character, Film } from "../types/types";
 
+const MAX_LENGTH = 130;
+const SUBSTR_START = 0;
+
+
 const useSearchController = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
@@ -51,7 +55,7 @@ const useSearchController = () => {
                 const filmDetails: Film[] = filmData.map((film) => ({
                     title: film.title,
                     releaseDate: film.release_date,
-                    openingCrawl: film.opening_crawl.substring(0, 130),
+                    openingCrawl: film.opening_crawl.substring(SUBSTR_START, MAX_LENGTH),
                 }));
 
                 setSearchResult({ character: characterData, films: filmDetails });

@@ -1,12 +1,14 @@
 import { Container, TextField, Button, CircularProgress, Typography, Skeleton, Autocomplete } from "@mui/material";
 import useSearchController from "./hooks/useSearchController";
-import ResultComponent from "./components/ResultComponent";
-import ErrorComponent from "./components/ErrorComponent";
+import ResultComponent from "./components/Result";
+import ErrorComponent from "./components/Error";
 import { useEffect, useState } from "react";
 import { Character } from "./types/types";
 
 const App = () => {
-  const [characters, setCharacters] = useState([]);
+
+  const [characters, setCharacters] = useState<Character[]>([]);
+
   const {
     searchTerm,
     setSearchTerm,
@@ -28,6 +30,7 @@ const App = () => {
     };
     fetchCharacters();
   }, []);
+
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography sx={{
