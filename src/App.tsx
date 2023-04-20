@@ -1,7 +1,7 @@
 import { Container, TextField, Button, CircularProgress, Typography, Skeleton, Autocomplete } from "@mui/material";
 import { useSearchController } from "./hooks/useSearchController";
-import ResultComponent from "./components/Result";
-import ErrorComponent from "./components/Error";
+import Result from "./components/Result";
+import Error from "./components/Error";
 
 const App = () => {
 
@@ -44,12 +44,12 @@ const App = () => {
         {loading ? "Loading..." : "Search"}
       </Button>
       {error && (
-        <ErrorComponent />
+        <Error />
       )}
 
       {searchResult && (
         <>
-          <ResultComponent
+          <Result
             characterName={searchResult.character.name}
             homeworldName={searchResult.character.homeworld}
             homeworldPopulation={searchResult.character.population}
