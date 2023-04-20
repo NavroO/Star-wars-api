@@ -16,7 +16,7 @@ export const useSearchController = () => {
     useEffect(() => {
         const fetchCharacters = async () => {
             try {
-                const response = await fetch(`${apiKey}/people/`);
+                const response = await fetch(`https://swapi.dev/api/people/`);
                 const data = await response.json();
                 setCharacters(data.results.map((character: Character) => character.name));
             } catch (error) {
@@ -32,7 +32,7 @@ export const useSearchController = () => {
         setSearchResult(null);
 
         try {
-            const response = await fetch(`${apiKey}/people/?search=${searchTerm}`);
+            const response = await fetch(`https://swapi.dev/api/people/?search=${searchTerm}`);
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
