@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchResult, Character, Film } from "../types/types";
 
 const MAX_LENGTH = 130;
 const SUBSTR_START = 0;
 
 
-const useSearchController = () => {
+export const useSearchController = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+    const [characters, setCharacters] = useState<Character[]>([]);
+
+    useEffect(() => {
+        const fetchCharacters = async () => {
+            try {
+                const response = await fetch("https://swapi.dev/api/people/");
+                const data = await response.json();
+                setCharacters(data.results.map((character: Character) => character.name));
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchCharacters();
+    }, []);
 
     const handleSearch = async () => {
         setLoading(true);
@@ -68,13 +82,11 @@ const useSearchController = () => {
     };
 
     return {
-        searchTerm,
         setSearchTerm,
         loading,
         error,
         searchResult,
         handleSearch,
+        characters,
     };
 };
-
-export default useSearchController;
