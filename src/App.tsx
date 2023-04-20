@@ -1,4 +1,4 @@
-import { Container, TextField, Button, CircularProgress, Typography, Skeleton, Autocomplete } from "@mui/material";
+import { Container, TextField, Button, Typography, Skeleton, Autocomplete } from "@mui/material";
 import { useSearchController } from "./hooks/useSearchController";
 import Result from "./components/Result";
 import Error from "./components/Error";

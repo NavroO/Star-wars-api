@@ -3,6 +3,7 @@ import { SearchResult, Character, Film } from "../types/types";
 
 const MAX_LENGTH = 130;
 const SUBSTR_START = 0;
+const apiKey = import.meta.env.VITE_API_URL;
 
 
 export const useSearchController = () => {
@@ -15,7 +16,7 @@ export const useSearchController = () => {
     useEffect(() => {
         const fetchCharacters = async () => {
             try {
-                const response = await fetch("https://swapi.dev/api/people/");
+                const response = await fetch(`${apiKey}/people/`);
                 const data = await response.json();
                 setCharacters(data.results.map((character: Character) => character.name));
             } catch (error) {
@@ -31,7 +32,7 @@ export const useSearchController = () => {
         setSearchResult(null);
 
         try {
-            const response = await fetch(`https://swapi.dev/api/people/?search=${searchTerm}`);
+            const response = await fetch(`${apiKey}/people/?search=${searchTerm}`);
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
