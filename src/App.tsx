@@ -2,8 +2,6 @@ import { Container, TextField, Button, CircularProgress, Typography, Skeleton, A
 import { useSearchController } from "./hooks/useSearchController";
 import ResultComponent from "./components/Result";
 import ErrorComponent from "./components/Error";
-import { useEffect, useState } from "react";
-import { Character } from "./types/types";
 
 const App = () => {
 
