@@ -4,6 +4,7 @@ import Result from "./components/Result";
 import { useCharacterController } from "./hooks/useCharacterController ";
 import { usePlanetController } from "./hooks/usePlanetController";
 import { useState } from "react";
+import { Resident } from "./types/types";
 
 export const App = () => {
 
@@ -20,8 +21,8 @@ export const App = () => {
 
 
   const [searchOption, setSearchOption] = useState("characters");
-  const [minPopulation, setMinPopulation] = useState();
-  const [maxPopulation, setMaxPopulation] = useState();
+  const [minPopulation, setMinPopulation] = useState<number>();
+  const [maxPopulation, setMaxPopulation] = useState<number>();
 
   const handleMinPopulationChange = (event: any) => {
     setMinPopulation(parseInt(event.target.value));
@@ -106,7 +107,7 @@ export const App = () => {
 
           {searchOption === "planets" && searchResult.residents && (
             <>
-              {searchResult.residents.map((resident) => (
+              {searchResult.residents.map((resident: Resident) => (
                 <Result
                   characterName={resident.name}
                   homeworldName={searchResult.planet?.name}
@@ -121,12 +122,12 @@ export const App = () => {
             <div>
               {searchResult.map((planetData) => (
                 <>
-                  {planetData.residents.map((residentData) => (
+                  {planetData.residents.map((resident: Resident) => (
                     <Result
-                      characterName={residentData.name}
+                      characterName={resident.name}
                       homeworldName={planetData.planet?.name}
                       homeworldPopulation={planetData.planet?.population}
-                      films={residentData.films}
+                      films={resident.films}
                     />
                   ))}
                 </>
