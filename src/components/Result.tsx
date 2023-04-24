@@ -4,10 +4,10 @@ import { FC, useState } from "react";
 import { Film } from "../types/types";
 
 type ResultProps = {
-    characterName?: string;
-    homeworldName?: string;
-    homeworldPopulation?: string;
-    films?: Film[];
+    characterName: string;
+    homeworldName: string;
+    homeworldPopulation: string;
+    films: Film[];
 };
 
 const Result: FC<ResultProps> = ({ characterName, homeworldName, homeworldPopulation, films }) => {
