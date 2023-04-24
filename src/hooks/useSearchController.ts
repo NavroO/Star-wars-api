@@ -3,7 +3,6 @@ import { SearchResult, Character, Film } from "../types/types";
 
 const MAX_LENGTH = 130;
 const SUBSTR_START = 0;
-const apiKey = import.meta.env.VITE_API_URL;
 
 
 export const useSearchController = () => {
@@ -11,20 +10,6 @@ export const useSearchController = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
-    const [characters, setCharacters] = useState<Character[]>([]);
-
-    useEffect(() => {
-        const fetchCharacters = async () => {
-            try {
-                const response = await fetch(`https://swapi.dev/api/people/`);
-                const data = await response.json();
-                setCharacters(data.results.map((character: Character) => character.name));
-            } catch (error) {
-                console.error(error);
-            }
-        };
-        fetchCharacters();
-    }, []);
 
     const handleSearch = async () => {
         setLoading(true);
@@ -88,6 +73,5 @@ export const useSearchController = () => {
         error,
         searchResult,
         handleSearch,
-        characters,
     };
 };

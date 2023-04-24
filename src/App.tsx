@@ -2,6 +2,7 @@ import { Container, TextField, Button, Typography, Skeleton, Autocomplete } from
 import { useSearchController } from "./hooks/useSearchController";
 import Result from "./components/Result";
 import Error from "./components/Error";
+import { useCharacterController } from "./hooks/useCharacterController ";
 
 const App = () => {
 
@@ -11,8 +12,9 @@ const App = () => {
     error,
     searchResult,
     handleSearch,
-    characters,
   } = useSearchController();
+
+  const { characters } = useCharacterController();
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -27,7 +29,7 @@ const App = () => {
       <Autocomplete
         disablePortal
         id="combo-box-demo"
-        options={characters}
+        options={characters.map((character) => character.name)}
         sx={{ width: "100%", mb: 2 }}
         renderInput={(params) => (
           <TextField {...params} label="Enter character name..." />
