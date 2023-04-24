@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Character, Film } from "../types/types";
 import { MAX_LENGTH, SUBSTR_START } from "../const";
 import { fetchFilmDetails } from "../helpers/fetchFilmDetails";
+import { fetchResidentDetails } from "../helpers/fetchResidentDetails";
 
 export const useSearchController = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -104,30 +105,7 @@ export const useSearchController = () => {
 
                     setSearchResult({ character: characterData, films: filmDetails });
                 } else if (searchType === "planets") {
-                    const residentsData = await Promise.all(
-                        result.residents.map(async (url: string) => {
-                            const response = await fetch(url);
-
-                            if (!response.ok) {
-                                throw new Error("Network response was not ok");
-                            }
-
-                            const resident = await response.json();
-
-                            const filmsData = await fetchFilmDetails(resident.films)
-
-                            const films: Film[] = filmsData.map((film) => ({
-                                title: film.title,
-                                releaseDate: film.releaseDate,
-                                openingCrawl: film.openingCrawl.substring(SUBSTR_START, MAX_LENGTH),
-                            }));
-
-                            return {
-                                name: resident.name,
-                                films: films,
-                            };
-                        })
-                    );
+                    const residentsData = await Promise.all(result.residents.map(fetchResidentDetails));
 
                     const residents: string[] = residentsData.map((residentData) => residentData.name);
 
