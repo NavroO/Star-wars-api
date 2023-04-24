@@ -1,20 +1,40 @@
-import { Container, TextField, Button, Typography, Skeleton, Autocomplete } from "@mui/material";
+import { Container, TextField, Button, Typography, Skeleton, Autocomplete, Select, MenuItem, Box, FormControl, InputLabel, Input } from "@mui/material";
 import { useSearchController } from "./hooks/useSearchController";
 import Result from "./components/Result";
-import Error from "./components/Error";
 import { useCharacterController } from "./hooks/useCharacterController ";
+import { usePlanetController } from "./hooks/usePlanetController";
+import { useState } from "react";
 
-const App = () => {
+export const App = () => {
 
   const {
+    searchTerm,
     setSearchTerm,
     loading,
-    error,
     searchResult,
     handleSearch,
   } = useSearchController();
 
   const { characters } = useCharacterController();
+  const { planets } = usePlanetController();
+
+
+  const [searchOption, setSearchOption] = useState("characters");
+  const [minPopulation, setMinPopulation] = useState();
+  const [maxPopulation, setMaxPopulation] = useState();
+
+  const handleMinPopulationChange = (event: any) => {
+    setMinPopulation(parseInt(event.target.value));
+  };
+
+  const handleMaxPopulationChange = (event: any) => {
+    setMaxPopulation(parseInt(event.target.value));
+  };
+
+  const handleSearchOptionChange = (event: any) => {
+    setSearchOption(event.target.value);
+    setSearchTerm("");
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -26,39 +46,96 @@ const App = () => {
       }}>
         This is the page you are looking for..
       </Typography>
-      <Autocomplete
-        disablePortal
-        id="combo-box-demo"
-        options={characters.map((character) => character.name)}
-        sx={{ width: "100%", mb: 2 }}
-        renderInput={(params) => (
-          <TextField {...params} label="Enter character name..." />
+      <Box sx={{ display: 'flex', alignItems: "center", mb: 2 }}>
+        {searchOption == "population" ? (
+          <>
+            <Input type="number" sx={{ mr: 2 }} placeholder="Min" value={minPopulation} onChange={handleMinPopulationChange} />
+            <Input type="number" sx={{ mr: 2 }} placeholder="Max" value={maxPopulation} onChange={handleMaxPopulationChange} />
+          </>
+        ) : (
+          <Autocomplete
+            disablePortal
+            options={searchOption === "characters" ? characters.map((character) => character.name) : planets.map((planet) => planet.name)}
+            sx={{ width: "70%" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={
+                  searchOption === "characters"
+                    ? "Enter character name..."
+                    : "Enter planet name..."
+                }
+              />
+            )}
+            onInputChange={(event, value) => setSearchTerm(value)}
+          />
         )}
-        onInputChange={(event, value) => setSearchTerm(value)}
-      />
+        <FormControl sx={{ width: "30%" }}>
+          <InputLabel>Search type</InputLabel>
+          <Select
+            label="Search type"
+            value={searchOption}
+            onChange={handleSearchOptionChange}
+          >
+            <MenuItem value="characters">Characters</MenuItem>
+            <MenuItem value="planets">Planets</MenuItem>
+            <MenuItem value="population">Population</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
       <Button
         variant="contained"
         color="primary"
-        onClick={handleSearch}
+        onClick={() => handleSearch(searchOption, minPopulation, maxPopulation)}
         disabled={loading}
         sx={{ mb: 2 }}
       >
         {loading ? "Loading..." : "Search"}
       </Button>
-      {error && (
-        <Error />
-      )}
 
       {searchResult && (
-        <>
-          <Result
-            characterName={searchResult.character.name}
-            homeworldName={searchResult.character.homeworld}
-            homeworldPopulation={searchResult.character.population}
-            films={searchResult.films}
-          />
-        </>
+        <div>
+          {searchOption === "characters" && (
+            <Result
+              characterName={searchResult.character?.name}
+              homeworldName={searchResult.character?.homeworld}
+              homeworldPopulation={searchResult.character?.population}
+              films={searchResult.films}
+            />
+          )}
+
+          {searchOption === "planets" && searchResult.residents && (
+            <>
+              {searchResult.residents.map((resident) => (
+                <Result
+                  characterName={resident.name}
+                  homeworldName={searchResult.planet?.name}
+                  homeworldPopulation={searchResult.planet?.population}
+                  films={resident.films}
+                />
+              ))}
+            </>
+          )}
+
+          {searchOption === "population" && Array.isArray(searchResult) && (
+            <div>
+              {searchResult.map((planetData) => (
+                <>
+                  {planetData.residents.map((residentData) => (
+                    <Result
+                      characterName={residentData.name}
+                      homeworldName={planetData.planet?.name}
+                      homeworldPopulation={planetData.planet?.population}
+                      films={residentData.films}
+                    />
+                  ))}
+                </>
+              ))}
+            </div>
+          )}
+        </div>
       )}
+
       {loading && (
         <>
           <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
@@ -71,5 +148,3 @@ const App = () => {
     </Container>
   );
 }
-
-export default App;

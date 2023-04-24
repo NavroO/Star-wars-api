@@ -1,33 +1,91 @@
-import { useEffect, useState } from "react";
-import { SearchResult, Character, Film } from "../types/types";
-
-const MAX_LENGTH = 130;
-const SUBSTR_START = 0;
-
+import { useState } from "react";
+import { Character, Film } from "../types/types";
+import { MAX_LENGTH, SUBSTR_START } from "../const";
+import { fetchFilmDetails } from "../helpers/fetchFilmDetails";
 
 export const useSearchController = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<boolean>(false);
-    const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
+    const [searchResult, setSearchResult] = useState<any>(null);
 
-    const handleSearch = async () => {
+    const handleSearch = async (searchType: string, minValue?: number, maxValue?: number) => {
         setLoading(true);
-        setError(false);
         setSearchResult(null);
 
-        try {
-            const response = await fetch(`https://swapi.dev/api/people/?search=${searchTerm}`);
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
+        if (searchType == "population") {
+            const response = await fetch(`https://swapi.dev/api/planets/`);
             const data = await response.json();
-            const [character] = data.results;
 
-            if (character) {
-                const homeworldResponse = await fetch(character.homeworld);
+            const filteredPlanets = data.results.filter((planet: any) => {
+                const planetPopulation = parseInt(planet.population);
+
+                return planetPopulation >= (minValue ?? 0) && (!maxValue || planetPopulation <= maxValue);
+            });
+
+            const planetsData = await Promise.all(
+                filteredPlanets.map(async (planet: any) => {
+                    const response = await fetch(planet.url);
+
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+
+                    const planetData = await response.json();
+
+                    const residentsData = await Promise.all(
+                        planetData.residents.map(async (url: string) => {
+                            const response = await fetch(url);
+
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+
+                            const resident = await response.json();
+                            const films = await fetchFilmDetails(resident.films);
+
+                            return {
+                                name: resident.name,
+                                films: films,
+                            }
+                        })
+                    );
+
+                    const residents: string[] = residentsData.map((residentData) => residentData.name);
+
+                    const planetResult = {
+                        name: planetData.name,
+                        population: planetData.population,
+                        climate: planetData.climate,
+                        residents: residents,
+                    };
+
+                    return { planet: planetResult, residents: residentsData };
+                })
+            );
+            setSearchResult(planetsData);
+        }
+
+        try {
+            let url = "";
+        if (searchType === "characters") {
+            url = `https://swapi.dev/api/people/?search=${searchTerm}`;
+        } else if (searchType === "planets") {
+            url = `https://swapi.dev/api/planets/?search=${searchTerm}`;
+        }
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        const [result] = data.results;
+
+
+        if (result) {
+            if (searchType === "characters") {
+                const homeworldResponse = await fetch(result.homeworld);
 
                 if (!homeworldResponse.ok) {
                     throw new Error('Network response was not ok');
@@ -36,41 +94,64 @@ export const useSearchController = () => {
                 const { name, population } = await homeworldResponse.json();
 
                 const characterData: Character = {
-                    name: character.name,
+                    name: result.name,
                     homeworld: name,
                     population: population,
-                    films: character.films,
+                    films: result.films,
                 };
 
-                const filmData = await Promise.all(characterData.films.map(async (url: string) => {
-                    const response = await fetch(url);
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-
-                    return response.json();
-                }));
-
-                const filmDetails: Film[] = filmData.map((film) => ({
-                    title: film.title,
-                    releaseDate: film.release_date,
-                    openingCrawl: film.opening_crawl.substring(SUBSTR_START, MAX_LENGTH),
-                }));
+                const filmDetails: Film[] = await fetchFilmDetails(characterData.films);
 
                 setSearchResult({ character: characterData, films: filmDetails });
+                } else if (searchType === "planets") {
+                    const residentsData = await Promise.all(
+                        result.residents.map(async (url: string) => {
+                            const response = await fetch(url);
+
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+
+                            const resident = await response.json();
+
+                            const filmsData = await fetchFilmDetails(resident.films)
+
+                            const films: Film[] = filmsData.map((film) => ({
+                                title: film.title,
+                                releaseDate: film.releaseDate,
+                                openingCrawl: film.openingCrawl.substring(SUBSTR_START, MAX_LENGTH),
+                            }));
+
+                            return {
+                                name: resident.name,
+                                films: films,
+                            };
+                        })
+                    );
+
+                    const residents: string[] = residentsData.map((residentData) => residentData.name);
+
+                    const planetData = {
+                        name: result.name,
+                        population: result.population,
+                        climate: result.climate,
+                        residents: residents,
+                    };
+
+                    setSearchResult({ planet: planetData, residents: residentsData });
+                }
             }
         } catch (error) {
-            setError(true);
+            console.log(error)
         } finally {
             setLoading(false);
         }
     };
 
     return {
+        searchTerm,
         setSearchTerm,
         loading,
-        error,
         searchResult,
         handleSearch,
     };
