@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Character, Film } from "../types/types";
-import { MAX_LENGTH, SUBSTR_START } from "../const";
 import { fetchFilmDetails } from "../helpers/fetchFilmDetails";
 import { fetchResidentDetails } from "../helpers/fetchResidentDetails";
 
-export const useSearchController = () => {
+
+export const useSearchQuery = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [searchResult, setSearchResult] = useState<any>(null);
@@ -89,7 +89,7 @@ export const useSearchController = () => {
                     const homeworldResponse = await fetch(result.homeworld);
 
                     if (!homeworldResponse.ok) {
-                        throw new Error('Network response was not ok');
+                        throw new Error("Network response was not ok");
                     }
 
                     const { name, population } = await homeworldResponse.json();
@@ -126,11 +126,14 @@ export const useSearchController = () => {
         }
     };
 
+    const memoizedHandleSearch = useMemo(() => {
+        return handleSearch;
+    }, [searchTerm]);
+
     return {
-        searchTerm,
         setSearchTerm,
         loading,
         searchResult,
-        handleSearch,
+        handleSearch: memoizedHandleSearch,
     };
 };

@@ -1,34 +1,33 @@
 import { Container, TextField, Button, Typography, Skeleton, Autocomplete, Select, MenuItem, Box, FormControl, InputLabel, Input } from "@mui/material";
-import { useSearchController } from "./hooks/useSearchController";
-import Result from "./components/Result";
-import { useCharacterController } from "./hooks/useCharacterController ";
-import { usePlanetController } from "./hooks/usePlanetController";
-import { useState } from "react";
+import { useSearchQuery } from "./hooks/useSearchQuery";
+import { Result } from "./components/Result";
+import { ChangeEvent, useState } from "react";
 import { Resident } from "./types/types";
+import { usePlanetData } from "./hooks/usePlanetData";
+import { useCharacterData } from "./hooks/useCharacterData";
 
 export const App = () => {
 
   const {
-    searchTerm,
     setSearchTerm,
     loading,
     searchResult,
     handleSearch,
-  } = useSearchController();
+  } = useSearchQuery();
 
-  const { characters } = useCharacterController();
-  const { planets } = usePlanetController();
+  const { characters } = useCharacterData();
+  const { planets } = usePlanetData();
 
 
   const [searchOption, setSearchOption] = useState("characters");
   const [minPopulation, setMinPopulation] = useState<number>();
   const [maxPopulation, setMaxPopulation] = useState<number>();
 
-  const handleMinPopulationChange = (event: any) => {
+  const handleMinPopulationChange = (event: ChangeEvent<HTMLInputElement>) => {
     setMinPopulation(parseInt(event.target.value));
   };
 
-  const handleMaxPopulationChange = (event: any) => {
+  const handleMaxPopulationChange = (event: ChangeEvent<HTMLInputElement>) => {
     setMaxPopulation(parseInt(event.target.value));
   };
 

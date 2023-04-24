@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-export const usePlanetController = () => {
+export const usePlanetData = () => {
     const [planets, setPlanets] = useState<any[]>([]);
 
     useEffect(() => {
@@ -16,5 +16,7 @@ export const usePlanetController = () => {
         fetchPlanets();
     }, []);
 
-    return { planets };
+    const memoizedPlanets = useMemo(() => planets, [planets]);
+
+    return { planets: memoizedPlanets };
 };

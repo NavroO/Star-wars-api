@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Character } from "../types/types";
 
-export const useCharacterController = () => {
+export const useCharacterData = () => {
     const [characters, setCharacters] = useState<Character[]>([]);
 
     useEffect(() => {
@@ -17,5 +17,7 @@ export const useCharacterController = () => {
         fetchCharacters();
     }, []);
 
-    return { characters };
+    const memoizedCharacters = useMemo(() => characters, [characters]);
+
+    return { characters: memoizedCharacters };
 };

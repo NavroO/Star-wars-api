@@ -1,6 +1,6 @@
-import { Box, Typography, List, ListItem, ListItemText, Card, CardContent, FormControl, MenuItem, Select, CardHeader, Collapse, IconButton } from "@mui/material";
+import { Box, Typography, Card, CardContent, CardHeader, Collapse, IconButton } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
-import { FC, useState } from "react";
+import { FC, memo, useState } from "react";
 import { Film } from "../types/types";
 
 type ResultProps = {
@@ -10,7 +10,7 @@ type ResultProps = {
     films: Film[];
 };
 
-const Result: FC<ResultProps> = ({ characterName, homeworldName, homeworldPopulation, films }) => {
+export const Result: FC<ResultProps> = memo(({ characterName, homeworldName, homeworldPopulation, films }) => {
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -65,6 +65,4 @@ const Result: FC<ResultProps> = ({ characterName, homeworldName, homeworldPopula
             </Collapse>
         </Card>
     );
-}
-
-export default Result;
+})
